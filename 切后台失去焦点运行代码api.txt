@@ -1,0 +1,12 @@
+   // [切后台也让加载继续跑] 桌面失焦默认可能暂停 player loop → 本协程的 WaitForSeconds/UploadProgerss 全冻住
+   // (表现为"切出去 loading 不走、切回来才继续")。运行时再钉死一遍 runInBackground(ProjectSettings 虽已开,
+   // 运行时设一次防被平台/设置覆盖),并把后台资源加载提到高优先级(否则失焦后系统会把加载降速)。
+   // 注意:这只解决"我自己切后台时我的加载继续跑";"我加载完了要等其他没加载完的玩家"仍需后端加载超时兜底。
+   Application.runInBackground = true;
+   Application.backgroundLoadingPriority = UnityEngine.ThreadPriority.High;
+   Debug.Log($"[后台加载] runInBackground={Application.runInBackground} bgPriority={Application.backgroundLoadingPriority}");
+
+
+    // 加载结束:后台加载优先级恢复默认(Low),避免游戏内的异步加载一直抢主线程帧时间。
+    // runInBackground 保持 true(全局、持续有效,不用恢复)。
+    Application.backgroundLoadingPriority = UnityEngine.ThreadPriority.Low;
